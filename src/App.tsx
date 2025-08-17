@@ -9,6 +9,10 @@ import { Separator } from '@/components/ui/separator';
 import NetworkVisualization from '@/components/visualisations/NetworkVisualisation';
 import TimeControls from '@/components/controls/TimeControls';
 import {StationDetails} from '@/components/controls/StationDetails';
+import RealtimeControls from '@/components/controls/RealtimeControls';
+import { useRealtimeTrips } from '@/hooks/useRealtimeTrips';
+
+
 import { AnimatedGradient } from '@/components/ui/animated-gradient';
 import useStationData from './hooks/useStationData';
 import type { Station } from '@/types/citibike';
@@ -30,6 +34,14 @@ const App: React.FC = () => {
     fetchFlows,
     refetch
   } = useStationData();
+
+  const [realtimeState, realtimeControls] = useRealtimeTrips({
+    websocketUrl: 'ws://localhost:8080',
+    maxRecentTrips: 100,
+    tripDuration: 30000, 
+    autoConnect: false 
+  });
+
 
   const maxTrips = stations.length > 0 ? Math.max(...stations.map(s => s.total_trips)) : 0;
 
@@ -165,6 +177,11 @@ const App: React.FC = () => {
               selectedHour={selectedHour}
               onHourChange={handleHourChange}
               isLoading={loading}
+            />
+
+            <RealtimeControls 
+              state={realtimeState} 
+              controls={realtimeControls}
             />
             
             <StationDetails
